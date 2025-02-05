@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <title>Add Photo - Kambhari Gallery</title>
+    <link rel="shortcut icon" type="image/x-icon" href="static/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4CAF50;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+            --input-border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --primary-dark: #5952cc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+        }
+
+        .form-group input.error {
+            border-color: #ff4444;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .submit-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .cancel-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .cancel-btn:hover {
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .preview-container {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .preview-container h3 {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .preview-frame {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .preview-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .preview-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .preview-error i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            margin-left: 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-btn.active {
+            color: var(--primary-color);
+        }
+
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .confirm-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .confirm-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Password</h2>
+            <input type="password" id="passwordInput" placeholder="Enter password" class="password-input">
+            <div class="modal-buttons">
+                <button onclick="checkPassword()" class="confirm-btn">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" style="display: none;">
+        <header class="header">
+            <h1 class="logo">KAMBHARI</h1>
+            <nav class="nav-container">
+                <a href="/" class="nav-btn">Videos</a>
+                <a href="/photos.html" class="nav-btn">Photos</a>
+                <a href="/add_video.html" class="nav-btn">Add Video</a>
+                <a href="/add_photo.html" class="nav-btn active">Add Photo</a>
+            </nav>
+        </header>
+
+        <div class="form-container">
+            <form id="addPhotoForm" onsubmit="addPhoto(event)">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title" placeholder="Enter photo title">
+                    <div id="titleError" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="views">Views</label>
+                    <input type="text" id="views" name="views" placeholder="Enter number of views (e.g., 1.5k, 2M)">
+                    <div id="viewsError" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="embedCode">Google Drive Photo URL or Embed Code</label>
+                    <input type="text" id="embedCode" name="embedCode" placeholder="Enter Google Drive photo URL or embed code">
+                    <div id="embedError" class="error-message"></div>
+                </div>
+
+                <div class="preview-container" id="previewContainer"></div>
+                
+                <div id="generalError" class="error-message"></div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Add Photo</button>
+                    <button type="button" class="cancel-btn" onclick="navigateToPage('/photos.html')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function addPhoto(event) {
+            event.preventDefault();
+            if (!validateForm()) return;
+
+            showLoading(true);
+            try {
+                const form = event.target;
+                const embedCode = form.embedCode.value.trim();
+                const photoId = extractPhotoId(embedCode);
+                
+                const formData = {
+                    title: form.title.value.trim(),
+                    views: form.views.value.trim(),
+                    embedUrl: `https://drive.google.com/file/d/${photoId}/view`,
+                    embedCode: `https://drive.google.com/file/d/${photoId}/preview` // Keep for compatibility
+                };
+
+                const response = await fetch('/api/photos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add photo');
+                }
+
+                navigateToPage('/photos.html');
+            } catch (error) {
+                console.error('Error adding photo:', error);
+                showError('generalError', true, 'Failed to add photo. Please try again.');
+                showLoading(false);
+            }
+        }
+
+        // Show error message
+        function showError(elementId, show, message = '') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Extract photo ID from URL or embed code
+        function extractPhotoId(input) {
+            if (!input) return null;
+            input = input.trim();
+            
+            // Check if it's a full embed code
+            if (input.includes('<iframe')) {
+                const srcMatch = input.match(/src=["'](.*?)["']/);
+                if (srcMatch) {
+                    input = srcMatch[1];
+                }
+            }
+
+            // Try different URL formats
+            let match;
+            
+            // Format: https://drive.google.com/file/d/PHOTO_ID/view
+            match = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (match) return match[1];
+            
+            // Format: https://drive.google.com/uc?id=PHOTO_ID
+            match = input.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (match) return match[1];
+            
+            // Format: https://drive.google.com/open?id=PHOTO_ID
+            match = input.match(/open\?id=([a-zA-Z0-9_-]+)/);
+            if (match) return match[1];
+
+            // Format: Just the photo ID
+            if (/^[a-zA-Z0-9_-]{20,}$/.test(input)) {
+                return input;
+            }
+
+            return null;
+        }
+
+        // Preview photo when URL changes
+        function previewPhoto() {
+            const embedCode = document.getElementById('embedCode').value.trim();
+            const previewContainer = document.getElementById('previewContainer');
+            
+            if (!embedCode) {
+                previewContainer.innerHTML = '<div class="no-preview">Photo preview will appear here</div>';
+                return;
+            }
+
+            try {
+                // Extract photo ID
+                const photoId = extractPhotoId(embedCode);
+                if (!photoId) {
+                    previewContainer.innerHTML = '<div class="no-preview">Invalid Google Drive URL or embed code</div>';
+                    return;
+                }
+
+                // Use iframe preview instead of direct image
+                previewContainer.innerHTML = `
+                    <div class="preview-frame">
+                        <div class="loading-overlay">Loading preview...</div>
+                        <iframe src="https://drive.google.com/file/d/${photoId}/preview"
+                                frameborder="0"
+                                allowfullscreen
+                                onload="this.previousElementSibling.style.display='none'"
+                                onerror="handlePreviewError(this)">
+                        </iframe>
+                    </div>`;
+            } catch (error) {
+                console.error('Preview error:', error);
+                previewContainer.innerHTML = '<div class="no-preview">Error loading preview</div>';
+            }
+        }
+
+        function handlePreviewError(iframe) {
+            const container = iframe.closest('.preview-frame');
+            if (container) {
+                container.innerHTML = `
+                    <div class="preview-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Failed to load preview</span>
+                        <small>Please check the URL and try again</small>
+                    </div>`;
+            }
+        }
+
+        // Validate form fields
+        function validateForm() {
+            const title = document.getElementById('title').value.trim();
+            const views = document.getElementById('views').value.trim();
+            const embedCode = document.getElementById('embedCode').value.trim();
+            let isValid = true;
+
+            // Validate title
+            if (!title) {
+                showError('titleError', true, 'Please enter a title');
+                isValid = false;
+            } else {
+                showError('titleError', false);
+            }
+
+            // Validate views
+            if (!views) {
+                showError('viewsError', true, 'Please enter number of views');
+                isValid = false;
+            } else {
+                showError('viewsError', false);
+            }
+
+            // Validate embed code
+            if (!embedCode) {
+                showError('embedError', true, 'Please enter the photo URL or embed code');
+                isValid = false;
+            } else {
+                const photoId = extractPhotoId(embedCode);
+                if (!photoId) {
+                    showError('embedError', true, 'Please enter a valid photo URL or embed code');
+                    isValid = false;
+                } else {
+                    showError('embedError', false);
+                }
+            }
+
+            return isValid;
+        }
+
+        // Show loading overlay
+        function showLoading(show = true) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // Clean up resources
+        function cleanup() {
+            const embedCodeInput = document.getElementById('embedCode');
+            if (embedCodeInput) {
+                embedCodeInput.removeEventListener('input', previewPhoto);
+                embedCodeInput.removeEventListener('paste', () => setTimeout(previewPhoto, 0));
+            }
+            
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.removeEventListener('keypress', handleEnterKey);
+            }
+        }
+
+        // Handle navigation
+        function navigateToPage(url) {
+            showLoading(true);
+            cleanup();
+            window.location.href = url;
+        }
+
+        // Update navigation links
+        document.querySelectorAll('a[href]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToPage(this.href);
+            });
+        });
+
+        // Handle Enter key in password input
+        function handleEnterKey(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        const passwordInput = document.getElementById('passwordInput');
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', handleEnterKey);
+        }
+
+        // Add event listeners for instant preview
+        const embedCodeInput = document.getElementById('embedCode');
+        if (embedCodeInput) {
+            embedCodeInput.addEventListener('input', debounce(previewPhoto, 500));
+            embedCodeInput.addEventListener('paste', () => {
+                setTimeout(previewPhoto, 0);
+            });
+        }
+
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === '5681') {
+                document.getElementById('passwordModal').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            } else {
+                alert('Incorrect password!');
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        // Debounce function to limit preview updates
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>

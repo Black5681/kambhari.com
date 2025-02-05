@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Video - Kambhari</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4CAF50;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --nav-bg: #1A1A1A;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', 'Arial', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .nav {
+            background: var(--nav-bg);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 40px auto;
+            box-shadow: var(--shadow);
+        }
+
+        .form-title {
+            color: var(--text-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .submit-btn:hover {
+            background: #5952cc;
+            transform: translateY(-1px);
+        }
+
+        .error-message {
+            color: #ff4444;
+            background: rgba(255, 68, 68, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions ol li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">Kambhari</a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Videos</a>
+                <a href="{{ url_for('photos_page') }}" class="nav-link">Photos</a>
+                <a href="{{ url_for('add_video') }}" class="nav-link active">Add Video</a>
+                <a href="{{ url_for('add_photo') }}" class="nav-link">Add Photo</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="upload-form">
+            <h1 class="text-center mb-2">Add Video to Kambhari</h1>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="views">Views:</label>
+                    <input type="number" id="views" name="views" required min="0">
+                </div>
+
+                <div class="code-section">
+                    <h2>Embedded Code</h2>
+                    <div class="instructions">
+                        <p>You can add videos from:</p>
+                        <ul>
+                            <li>YouTube: Use the embed code from YouTube's share option</li>
+                            <li>Google Drive:
+                                <ol>
+                                    <li>Open your video in Google Drive</li>
+                                    <li>Click "Share" and make sure the file is accessible (Anyone with the link)</li>
+                                    <li>Copy the file link (e.g., https://drive.google.com/file/d/YOUR_FILE_ID/view)</li>
+                                    <li>Paste it below - it will be automatically converted to an embed</li>
+                                </ol>
+                            </li>
+                        </ul>
+                    </div>
+                    <textarea id="codeContent" class="code-editor" 
+                            placeholder="Paste your embedded code or Google Drive link here..." required></textarea>
+                    
+                    <div class="code-options">
+                        <button type="button" class="code-button" onclick="previewCode()">Preview</button>
+                    </div>
+
+                    <div id="codePreview" class="preview-code"></div>
+                </div>
+
+                <button type="submit" class="btn btn-block" onclick="submitVideo()">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function previewCode() {
+            const codeContent = document.getElementById('codeContent').value;
+            const previewDiv = document.getElementById('codePreview');
+            
+            if (!codeContent) {
+                previewDiv.innerHTML = '<p>No content to preview</p>';
+                previewDiv.style.display = 'block';
+                return;
+            }
+
+            // Check if it's a Google Drive link
+            const drivePatterns = [
+                /drive\.google\.com\/file\/d\/([^\/]+)\/view/,
+                /drive\.google\.com\/file\/d\/([^\/]+)/,
+                /drive\.google\.com\/open\?id=([^\/&]+)/,
+                /docs\.google\.com\/uc\?id=([^\/&]+)/
+            ];
+
+            for (const pattern of drivePatterns) {
+                const match = codeContent.match(pattern);
+                if (match) {
+                    const fileId = match[1];
+                    previewDiv.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" width="853" height="480" allow="autoplay" frameborder="0" allowfullscreen></iframe>`;
+                    previewDiv.style.display = 'block';
+                    return;
+                }
+            }
+
+            // For other content, display as is
+            previewDiv.innerHTML = codeContent;
+            previewDiv.style.display = 'block';
+        }
+
+        async function submitVideo() {
+            const title = document.getElementById('title').value;
+            const views = document.getElementById('views').value;
+            const codeContent = document.getElementById('codeContent').value;
+            
+            if (!title || !codeContent) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/videos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title.trim(),
+                        views: views ? parseInt(views) : 0,
+                        embedUrl: codeContent
+                    })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to add video');
+                }
+
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'Failed to add video');
+            }
+        }
+    </script>
+</body>
+</html>

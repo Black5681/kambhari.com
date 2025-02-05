@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery - Kambhari</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4CAF50;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: var(--bg-color);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-link {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            background: var(--card-bg);
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link:hover:not(.active) {
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .search-container {
+            position: relative;
+            margin-left: auto;
+            margin-right: 1rem;
+        }
+
+        .search-container input {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            color: var(--text-color);
+            width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .search-container input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            width: 250px;
+            outline: none;
+        }
+
+        .search-container button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .photo-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            background: var(--card-bg);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .photo-thumbnail iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            transition: transform 0.3s ease;
+            object-fit: cover;
+        }
+
+        .photo-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            height: 350px;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-card:hover iframe {
+            transform: scale(1.05);
+        }
+
+        .photo-info {
+            padding: 1rem;
+            background: var(--card-bg);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .photo-title {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            margin: 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.4;
+        }
+
+        .photo-meta {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .photo-views {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .photo-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(255, 68, 68, 0.1);
+            opacity: 1;
+        }
+
+        .photo-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: var(--bg-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            margin: 15% auto;
+            padding: 20px;
+            width: 300px;
+            position: relative;
+            color: var(--text-color);
+            z-index: 10000;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+            box-sizing: border-box;
+            z-index: 10001;
+            position: relative;
+        }
+
+        .password-input:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: -1px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .delete-confirm-btn {
+            padding: 8px 16px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .cancel-btn {
+            padding: 8px 16px;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .delete-confirm-btn:hover {
+            background-color: #ff0000;
+        }
+
+        .cancel-btn:hover {
+            background-color: #888;
+        }
+
+        .delete-confirm-btn:disabled,
+        .cancel-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin: 2rem auto;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Base responsive styles */
+        @media (max-width: 1200px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .nav-container {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-links a {
+                padding: 0.5rem 1rem;
+            }
+
+            .search-container {
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .photo-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+
+            .photo-card {
+                margin: 0.5rem 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.5rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .nav-links a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .photo-title {
+                font-size: 0.9rem;
+            }
+
+            .photo-meta {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+            .photo-card {
+                height: 320px;
+            }
+            .photo-thumbnail {
+                height: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .photo-card {
+                height: 300px;
+            }
+            .photo-thumbnail {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .photo-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            .photo-card {
+                height: 280px;
+            }
+            .photo-thumbnail {
+                height: 180px;
+            }
+        }
+
+        /* User Profile Styles */
+        .user-profile {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #6c5ce7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-icon i {
+            color: white;
+            font-size: 20px;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 10px 0;
+            min-width: 200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background: var(--bg-color);
+            transform: rotate(45deg);
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(108, 92, 231, 0.1);
+        }
+
+        .dropdown-item i {
+            margin-right: 10px;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+
+        @keyframes ripple {
+            to { transform: scale(2); opacity: 0; }
+        }
+
+        .profile-icon .ripple {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="page-transition"></div>
+        <header class="header">
+            <h1 class="logo">KAMBHARI</h1>
+            <div class="nav-container">
+                <a href="/" class="nav-link">Videos</a>
+                <a href="/photos.html" class="nav-link active">Photos</a>
+            </div>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+            </div>
+        </header>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            Loading amazing photos...
+        </div>
+        
+        <div id="photoGrid" class="photo-grid"></div>
+        <div id="noPhotos" class="no-photos" style="display: none;">
+            No photos found. Click "Add Photo" to upload some!
+        </div>
+
+        <div id="deleteModal" class="modal">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <h2>Delete Photo</h2>
+                <p>Enter password to delete this photo:</p>
+                <input type="password" 
+                       id="deletePasswordInput" 
+                       class="password-input" 
+                       placeholder="Enter password"
+                       autocomplete="off"
+                       onclick="event.stopPropagation()">
+                <div class="modal-buttons">
+                    <button onclick="confirmDelete()" class="delete-confirm-btn">Delete</button>
+                    <button onclick="hideDeleteModal()" class="cancel-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="user-profile">
+            <div class="profile-icon" onclick="toggleProfileDropdown(event)">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-dropdown">
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="/add_video.html" class="dropdown-item">
+                    <i class="fas fa-video"></i>
+                    Add Video
+                </a>
+                <a href="/add_photo.html" class="dropdown-item">
+                    <i class="fas fa-camera"></i>
+                    Add Photo
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+
+        <script>
+            let currentPhotoId = null;
+            let modalPasswordInput = null;
+
+            // Extract photo ID from URL or embed code
+            function extractPhotoId(input) {
+                if (!input) return null;
+                input = input.trim();
+                
+                // Check if it's a full embed code
+                if (input.includes('<iframe')) {
+                    const srcMatch = input.match(/src=["'](.*?)["']/);
+                    if (srcMatch) {
+                        input = srcMatch[1];
+                    }
+                }
+
+                // Try different URL formats
+                let match;
+                
+                // Format: https://drive.google.com/file/d/PHOTO_ID/view
+                match = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (match) return match[1];
+                
+                // Format: https://drive.google.com/uc?id=PHOTO_ID
+                match = input.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (match) return match[1];
+                
+                // Format: https://drive.google.com/open?id=PHOTO_ID
+                match = input.match(/open\?id=([a-zA-Z0-9_-]+)/);
+                if (match) return match[1];
+
+                // Format: Just the photo ID
+                if (/^[a-zA-Z0-9_-]{20,}$/.test(input)) {
+                    return input;
+                }
+
+                return null;
+            }
+
+            async function loadPhotos(searchQuery = '') {
+                const loading = document.getElementById('loading');
+                const photoGrid = document.getElementById('photoGrid');
+                const noPhotos = document.getElementById('noPhotos');
+
+                loading.style.display = 'block';
+                photoGrid.innerHTML = '';
+                noPhotos.style.display = 'none';
+
+                try {
+                    const response = await fetch('/api/photos');
+                    if (!response.ok) throw new Error('Failed to fetch photos');
+                    
+                    const photos = await response.json();
+                    console.log('Loaded photos:', photos);
+
+                    if (!photos || photos.length === 0) {
+                        loading.style.display = 'none';
+                        noPhotos.style.display = 'block';
+                        return;
+                    }
+
+                    // Filter photos if search query exists
+                    const filteredPhotos = photos.filter(photo => 
+                        photo.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+
+                    if (filteredPhotos.length === 0) {
+                        loading.style.display = 'none';
+                        noPhotos.style.display = 'block';
+                        return;
+                    }
+
+                    // Sort photos by creation date (newest first)
+                    filteredPhotos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                    // Add photos with fade in animation
+                    filteredPhotos.forEach((photo, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'photo-card fade-in';
+                        card.onclick = () => location.href = `/photo_viewer.html?id=${photo.id}`;
+                        
+                        const photoId = photo.mediaId || extractPhotoId(photo.embedUrl || photo.embedCode);
+                        if (!photoId) {
+                            console.warn('Invalid photo URL:', photo.embedUrl);
+                            return;
+                        }
+
+                        const previewUrl = photo.urls?.preview || 
+                            `https://drive.google.com/file/d/${photoId}/preview`;
+
+                        card.innerHTML = `
+                            <div class="photo-thumbnail">
+                                <iframe src="${previewUrl}"
+                                        frameborder="0"
+                                        allowfullscreen>
+                                </iframe>
+                            </div>
+                            <div class="photo-info">
+                                <div>
+                                    <h3 class="photo-title">${photo.title}</h3>
+                                    <div class="photo-meta">
+                                        <span class="photo-views">${photo.views ? photo.views.toLocaleString() + ' views' : '0 views'}</span>
+                                        <div class="photo-actions">
+                                            <button class="delete-btn" onclick="event.stopPropagation(); showDeleteModal('${photo.id}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        photoGrid.appendChild(card);
+                    });
+
+                    loading.style.display = 'none';
+                } catch (error) {
+                    console.error('Error loading photos:', error);
+                    loading.style.display = 'none';
+                    noPhotos.style.display = 'block';
+                    noPhotos.textContent = 'Error loading photos. Please try again.';
+                }
+            }
+
+            function handlePhotoLoad(iframe) {
+                const thumbnail = iframe.closest('.photo-thumbnail');
+                if (thumbnail) {
+                    const loadingEl = thumbnail.querySelector('.photo-loading');
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    iframe.style.opacity = '1';
+                    iframe.classList.add('loaded');
+                }
+            }
+
+            function handlePhotoError(iframe) {
+                const thumbnail = iframe.closest('.photo-thumbnail');
+                if (thumbnail) {
+                    const loadingEl = thumbnail.querySelector('.photo-loading');
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    
+                    thumbnail.innerHTML = `
+                        <div class="photo-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Failed to load photo</span>
+                            <small>Try refreshing the page</small>
+                        </div>`;
+                }
+            }
+
+            function showDeleteModal(photoId) {
+                if (!photoId) {
+                    console.error('No photo ID provided to delete');
+                    return;
+                }
+                
+                // Store the photo ID
+                currentPhotoId = photoId.toString();
+                console.log('Setting current photo ID for deletion:', currentPhotoId);
+                
+                // Get modal elements
+                const modal = document.getElementById('deleteModal');
+                modalPasswordInput = document.getElementById('deletePasswordInput');
+                
+                // Clear any previous state
+                modalPasswordInput.value = '';
+                
+                // Show modal
+                modal.style.display = 'block';
+                
+                // Focus the password input after a short delay
+                setTimeout(() => {
+                    modalPasswordInput.focus();
+                }, 100);
+
+                // Add click handler to close modal when clicking outside
+                modal.onclick = function(event) {
+                    if (event.target === modal) {
+                        hideDeleteModal();
+                    }
+                };
+            }
+
+            function hideDeleteModal() {
+                const modal = document.getElementById('deleteModal');
+                if (modalPasswordInput) {
+                    modalPasswordInput.value = '';
+                }
+                modal.style.display = 'none';
+                currentPhotoId = null;
+                
+                // Remove click handler
+                modal.onclick = null;
+            }
+
+            async function confirmDelete() {
+                if (!modalPasswordInput) {
+                    modalPasswordInput = document.getElementById('deletePasswordInput');
+                }
+                
+                const password = modalPasswordInput.value;
+                if (!password) {
+                    alert('Please enter the password');
+                    return;
+                }
+
+                if (!currentPhotoId) {
+                    console.error('No photo ID set for deletion');
+                    alert('Error: No photo selected for deletion');
+                    hideDeleteModal();
+                    return;
+                }
+
+                // Get the buttons
+                const deleteBtn = document.querySelector('#deleteModal .delete-confirm-btn');
+                const cancelBtn = document.querySelector('#deleteModal .cancel-btn');
+                
+                // Disable buttons and show loading state
+                if (deleteBtn) {
+                    deleteBtn.disabled = true;
+                    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                }
+                if (cancelBtn) {
+                    cancelBtn.disabled = true;
+                }
+
+                try {
+                    const photoId = currentPhotoId.toString();
+                    console.log('Attempting to delete photo:', photoId);
+                    
+                    const response = await fetch(`/api/photos/${photoId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Delete-Password': password
+                        }
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        console.log('Photo deleted successfully:', data);
+                        hideDeleteModal();
+                        // Show success message
+                        const toast = document.createElement('div');
+                        toast.className = 'toast success';
+                        toast.textContent = 'Photo deleted successfully';
+                        document.body.appendChild(toast);
+                        setTimeout(() => toast.remove(), 3000);
+                        
+                        await loadPhotos(); // Reload the photos
+                    } else {
+                        console.error('Server returned error:', data);
+                        alert(data.error || 'Failed to delete photo. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error during delete operation:', error);
+                    alert('Network error while deleting photo. Please check your connection and try again.');
+                } finally {
+                    // Reset button states
+                    if (deleteBtn) {
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = 'Delete';
+                    }
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                    }
+                    if (modalPasswordInput) {
+                        modalPasswordInput.value = '';
+                    }
+                }
+            }
+
+            // Handle Enter key in password input
+            document.getElementById('deletePasswordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    confirmDelete();
+                }
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add keyboard event listeners
+                const passwordInput = document.getElementById('deletePasswordInput');
+                const modal = document.getElementById('deleteModal');
+
+                // Handle Enter key in password input
+                passwordInput.addEventListener('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        confirmDelete();
+                    }
+                });
+
+                // Handle Escape key to close modal
+                document.addEventListener('keyup', function(event) {
+                    if (event.key === 'Escape' && modal.style.display === 'block') {
+                        hideDeleteModal();
+                    }
+                });
+
+                // Prevent modal from closing when clicking inside
+                modal.querySelector('.modal-content').addEventListener('click', function(event) {
+                    event.stopPropagation();
+                });
+
+                // Close modal when clicking outside
+                modal.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        hideDeleteModal();
+                    }
+                });
+
+                // Load photos when page loads
+                loadPhotos();
+
+                // Handle search input
+                document.getElementById('searchInput').addEventListener('input', function(e) {
+                    loadPhotos(e.target.value);
+                });
+            });
+
+            function toggleProfileDropdown(event) {
+                const icon = event.currentTarget;
+                const dropdown = document.querySelector('.profile-dropdown');
+                
+                // Add ripple effect
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                icon.appendChild(ripple);
+                
+                // Remove ripple after animation
+                setTimeout(() => ripple.remove(), 600);
+                
+                // Toggle dropdown
+                dropdown.classList.toggle('show');
+                
+                // Close dropdown when clicking outside
+                const closeDropdown = (e) => {
+                    if (!icon.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                };
+                
+                if (dropdown.classList.contains('show')) {
+                    setTimeout(() => {
+                        document.addEventListener('click', closeDropdown);
+                    }, 0);
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

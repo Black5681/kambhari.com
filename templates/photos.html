@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kambhari - Photos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4CAF50;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --nav-bg: #1A1A1A;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', 'Arial', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .nav {
+            background: var(--nav-bg);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 24px 0;
+        }
+
+        .photo-card {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            aspect-ratio: 1;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .photo-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 2;
+            opacity: 0;
+        }
+
+        .photo-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .add-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .add-button:hover {
+            background: #5952cc;
+            transform: translateY(-1px);
+        }
+
+        .no-photos {
+            text-align: center;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            color: var(--text-color);
+        }
+
+        .no-photos h2 {
+            margin-bottom: 12px;
+        }
+
+        .no-photos p {
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            overflow: auto;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-box::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            background: linear-gradient(45deg, var(--primary-color), #ff6b6b, #4ecdc4, var(--primary-color));
+            background-size: 400% 400%;
+            border-radius: 30px;
+            z-index: -1;
+            opacity: 0;
+            transition: var(--transition);
+            animation: gradientBG 15s ease infinite;
+            filter: blur(10px);
+        }
+
+        .search-box:hover::before {
+            opacity: 0.5;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 16px 24px 16px 50px;
+            border: 2px solid transparent;
+            border-radius: 25px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2),
+                        0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            transition: var(--transition);
+        }
+
+        .search-input:focus::placeholder {
+            opacity: 0.7;
+            transform: translateX(10px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            pointer-events: none;
+            transition: var(--transition);
+            z-index: 2;
+        }
+
+        .search-input:focus + .search-icon {
+            color: var(--text-color);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .search-button {
+            padding: 16px 32px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
+        }
+
+        .search-button:hover {
+            background: #5952cc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .search-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Add ripple effect */
+        .search-button .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Add pulse animation to search icon */
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+
+        .search-input:focus ~ .search-icon {
+            animation: pulse 1.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 16px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+        }
+
+        .new-photo {
+            position: relative;
+        }
+
+        .new-photo::before {
+            content: 'NEW';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">Kambhari</a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Videos</a>
+                <a href="{{ url_for('add_photo') }}" class="nav-link add-button">Add Photo</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center mb-2">Kambhari Photos</h1>
+        
+        <!-- Search Section -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search photos...">
+                <i class="search-icon">🔍</i>
+                <button class="search-button" onclick="performSearch()">Search</button>
+            </div>
+        </div>
+
+        <!-- Loading and Error Messages -->
+        <div id="loading" class="message loading">Loading photos...</div>
+        <div id="error" class="message error" style="display: none;"></div>
+
+        <!-- Photo Grid -->
+        <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="modal">
+        <button class="close-modal" onclick="closeModal()">×</button>
+        <div class="modal-content">
+            <img id="modalImage" class="modal-image" src="" alt="Photo preview">
+        </div>
+    </div>
+
+    <script>
+        let allPhotos = [];
+        let filteredPhotos = [];
+
+        // Load photos when page loads
+        window.addEventListener('load', loadPhotos);
+
+        async function loadPhotos() {
+            try {
+                const response = await fetch('/api/photos');
+                const data = await response.json();
+                const photoGrid = document.querySelector('.photo-grid');
+                photoGrid.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    photoGrid.innerHTML = `
+                        <div class="no-photos">
+                            <h2>No Photos Found</h2>
+                            <p>Start adding photos to see them here</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                data.forEach(photo => {
+                    const photoCard = createPhotoCard(photo);
+                    photoGrid.appendChild(photoCard);
+                    
+                    // Add fade-in animation to new photos
+                    if (photo.isNew) {
+                        photoCard.style.animation = 'fadeIn 0.5s ease-in-out';
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading photos:', error);
+            }
+        }
+
+        function createPhotoCard(photo) {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            if (photo.isNew) {
+                card.classList.add('new-photo');
+            }
+            card.setAttribute('data-id', photo.id);
+            card.setAttribute('data-title', photo.title || '');
+            
+            const img = document.createElement('img');
+            img.src = photo.url;
+            img.alt = photo.title || 'Photo';
+            img.loading = 'lazy';
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                deletePhoto(photo.id);
+            };
+            
+            card.appendChild(img);
+            card.appendChild(deleteBtn);
+            
+            card.onclick = () => {
+                openModal(photo);
+            };
+            
+            return card;
+        }
+
+        async function deletePhoto(photoId) {
+            // Show confirmation dialog with photo details
+            const confirmDelete = confirm('Are you sure you want to delete this photo? This action cannot be undone.');
+            
+            if (!confirmDelete) {
+                return; // User canceled the deletion
+            }
+
+            try {
+                const response = await fetch(`/api/photos/${photoId}/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Confirmation': 'true'
+                    }
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to delete photo');
+                }
+
+                // Remove the photo card from the UI
+                const photoCard = document.querySelector(`[data-id="${photoId}"]`);
+                if (photoCard) {
+                    photoCard.remove();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to delete photo: ' + error.message);
+            }
+        }
+
+        // Add fadeOut animation style
+        const fadeOutStyle = document.createElement('style');
+        fadeOutStyle.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: scale(1); }
+                to { opacity: 0; transform: scale(0.9); }
+            }
+        `;
+        document.head.appendChild(fadeOutStyle);
+
+        function openModal(photo) {
+            const modal = document.getElementById('photoModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = photo.url;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('photoModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside the image
+        document.getElementById('photoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        async function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput.value.trim();
+            
+            try {
+                const response = await fetch(`/api/search/photos?q=${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                
+                const results = await response.json();
+                displayPhotos(results);
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }
+
+        function displayPhotos(photos) {
+            const container = document.querySelector('.photo-grid');
+            container.innerHTML = ''; // Clear existing photos
+            
+            if (photos.length === 0) {
+                container.innerHTML = '<p class="no-results">No photos found</p>';
+                return;
+            }
+            
+            photos.forEach(photo => {
+                const card = createPhotoCard(photo);
+                container.appendChild(card);
+            });
+        }
+
+        // Search on enter key press
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Search when search button is clicked
+        document.querySelector('.search-button').addEventListener('click', performSearch);
+
+        // Initial load
+        loadPhotos();
+
+        // Add ripple effect to search button
+        document.querySelector('.search-button').addEventListener('click', function(e) {
+            let ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+            
+            let x = e.clientX - e.target.offsetLeft;
+            let y = e.clientY - e.target.offsetTop;
+            
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+
+        // Add floating label effect
+        const searchInput = document.querySelector('.search-input');
+        searchInput.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                this.classList.add('has-content');
+            } else {
+                this.classList.remove('has-content');
+            }
+        });
+
+        // Add fade-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

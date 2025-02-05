@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kambhari - Videos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        :root {
+            --primary-color: #6C63FF;
+            --secondary-color: #4CAF50;
+            --text-color: #ffffff;
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --nav-bg: #1A1A1A;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', 'Arial', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .nav {
+            background: var(--nav-bg);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-box::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            background: linear-gradient(45deg, var(--primary-color), #ff6b6b, #4ecdc4, var(--primary-color));
+            background-size: 400% 400%;
+            border-radius: 30px;
+            z-index: -1;
+            opacity: 0;
+            transition: var(--transition);
+            animation: gradientBG 15s ease infinite;
+            filter: blur(10px);
+        }
+
+        .search-box:hover::before {
+            opacity: 0.5;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 16px 24px 16px 50px;
+            border: 2px solid transparent;
+            border-radius: 25px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2),
+                        0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            transition: var(--transition);
+        }
+
+        .search-input:focus::placeholder {
+            opacity: 0.7;
+            transform: translateX(10px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            pointer-events: none;
+            transition: var(--transition);
+            z-index: 2;
+        }
+
+        .search-input:focus + .search-icon {
+            color: var(--text-color);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .search-button {
+            padding: 16px 32px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
+        }
+
+        .search-button:hover {
+            background: #5952cc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-button:hover::before {
+            transform: translateX(100%);
+        }
+
+        .search-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Add ripple effect */
+        .search-button .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 24px 0;
+        }
+
+        .video-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover .thumbnail {
+            transform: scale(1.05);
+        }
+
+        .video-info {
+            padding: 16px;
+        }
+
+        .video-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 2;
+            opacity: 0;
+        }
+
+        .video-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .add-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            transition: var(--transition);
+        }
+
+        .add-button:hover {
+            background: #5952cc;
+            transform: translateY(-1px);
+        }
+
+        .no-videos {
+            text-align: center;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            color: var(--text-color);
+        }
+
+        .no-videos h2 {
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+
+        .no-videos p {
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 16px;
+            }
+
+            .container {
+                padding: 16px;
+            }
+
+            .search-container {
+                padding: 0 16px;
+            }
+        }
+
+        .new-video {
+            position: relative;
+        }
+
+        .new-video::before {
+            content: 'NEW';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.9); }
+        }
+
+        .video-card {
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio */
+            background-color: #000;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .video-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+
+        .search-results {
+            margin-top: 2rem;
+        }
+
+        .results-section,
+        .recommendations-section {
+            margin-bottom: 2rem;
+        }
+
+        .results-section h2,
+        .recommendations-section h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .recommendations-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* Enhance search input */
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .search-container input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.25);
+        }
+
+        .search-container .clear-search {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-container input:not(:placeholder-shown) + .clear-search {
+            display: block;
+        }
+
+        /* Loading animation */
+        .search-loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .search-loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Add modal styles */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto;
+            background: #000;
+        }
+
+        .video-player {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        }
+
+        .video-player iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 10px;
+        }
+
+        .close-modal:hover {
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">Kambhari</a>
+            <div class="nav-links">
+                <a href="{{ url_for('photos_page') }}" class="nav-link">Photos</a>
+                <a href="{{ url_for('add_video') }}" class="nav-link add-button">Add Video</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search videos...">
+                <i class="search-icon">🔍</i>
+                <button class="search-button" onclick="performSearch()">Search</button>
+            </div>
+        </div>
+
+        <div class="search-results" style="display: none;">
+            <div class="results-section">
+                <h2>Search Results</h2>
+                <div class="video-grid" id="searchResults"></div>
+            </div>
+            <div class="recommendations-section">
+                <h2>Recommended Videos</h2>
+                <div class="video-grid" id="searchRecommendations"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+                <button onclick="location.reload()">Refresh</button>
+            </div>
+            {% endif %}
+
+            <div class="video-grid">
+                {% for video in videos %}
+                <div class="video-card" data-video-id="{{ video.id }}" onclick="playVideo('{{ video.id }}', '{{ video.code|default('')|replace("'", "\\'") }}')">
+                    <div class="video-thumbnail">
+                        <img src="{{ video.thumbnail|default('') }}" alt="{{ video.title|default('') }}" onerror="this.src='{{ url_for('static', filename='images/default-thumbnail.jpg') }}'">
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">{{ video.title|default('Untitled') }}</h3>
+                        <div class="video-meta">
+                            <span>{{ video.views|default(0)|format_views }}</span>
+                            {% if video.timestamp %}
+                            <span>{{ video.timestamp|format_timestamp }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="video-actions">
+                        <button onclick="event.stopPropagation(); deleteVideo('{{ video.id }}')" class="delete-btn">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <style>
+            .error-message {
+                background-color: #fff3cd;
+                color: #856404;
+                padding: 1rem;
+                margin: 1rem 0;
+                border: 1px solid #ffeeba;
+                border-radius: 4px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .error-message button {
+                background-color: #856404;
+                color: white;
+                border: none;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+
+            .error-message button:hover {
+                background-color: #6a4f03;
+            }
+        </style>
+
+        <div id="videoModal" class="video-modal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeVideoModal()">&times;</button>
+                <div class="video-player" id="modalVideoPlayer"></div>
+            </div>
+        </div>
+
+        <script>
+            async function loadVideos() {
+                try {
+                    const response = await fetch('/api/videos');
+                    if (!response.ok) {
+                        throw new Error('Failed to load videos');
+                    }
+                    const data = await response.json();
+                    
+                    const videoGrid = document.querySelector('.video-grid');
+                    videoGrid.innerHTML = ''; // Clear existing videos
+                    
+                    if (data.length === 0) {
+                        videoGrid.innerHTML = `
+                            <div class="no-videos">
+                                <h2>No Videos Found</h2>
+                                <p>Start adding videos to see them here</p>
+                                <a href="/add-video" class="nav-link">Add Video</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    data.forEach(video => {
+                        const videoHtml = createVideoCard(video);
+                        if (videoHtml) {
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = videoHtml;
+                            const videoElement = tempDiv.firstElementChild;
+                            videoGrid.appendChild(videoElement);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error loading videos:', error);
+                    const videoGrid = document.querySelector('.video-grid');
+                    videoGrid.innerHTML = `
+                        <div class="error-message">
+                            Failed to load videos. Please refresh the page.
+                            <button onclick="location.reload()">Refresh</button>
+                        </div>
+                    `;
+                }
+            }
+
+            function createVideoCard(video) {
+                if (!video || !video.id) {
+                    console.error('Invalid video data:', video);
+                    return null;
+                }
+
+                const code = video.code || '';
+                const escapedCode = code.replace(/'/g, "\\'");
+
+                return `
+                    <div class="video-card" data-video-id="${video.id}" onclick="playVideo('${video.id}', '${escapedCode}')">
+                        <div class="video-thumbnail">
+                            <img src="${getThumbnailUrl(video)}" alt="${video.title || 'Video thumbnail'}" 
+                                 onerror="this.src='${window.location.origin}/static/images/default-thumbnail.jpg'">
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">${video.title || 'Untitled'}</h3>
+                            <div class="video-meta">
+                                <span>${formatViews(video.views || 0)}</span>
+                            </div>
+                        </div>
+                        <div class="video-actions">
+                            <button onclick="event.stopPropagation(); deleteVideo('${video.id}')" class="delete-btn">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function getThumbnailUrl(video) {
+                if (video.thumbnail) {
+                    return video.thumbnail;
+                }
+                
+                // Extract YouTube video ID from either code or embedUrl
+                const embedCode = video.code || video.embedUrl || '';
+                const match = embedCode.match(/(?:youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([^"&?\/ ]{11})/);
+                if (match) {
+                    return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
+                }
+                
+                return "{{ url_for('static', filename='images/default-thumbnail.jpg') }}";
+            }
+
+            function formatViews(views) {
+                if (views >= 1000000) {
+                    return (views / 1000000).toFixed(1) + 'M views';
+                } else if (views >= 1000) {
+                    return (views / 1000).toFixed(1) + 'K views';
+                }
+                return views + ' views';
+            }
+
+            async function deleteVideo(videoId) {
+                // Show confirmation dialog with video details
+                const confirmDelete = confirm('Are you sure you want to delete this video? This action cannot be undone.');
+                
+                if (!confirmDelete) {
+                    return; // User canceled the deletion
+                }
+
+                try {
+                    const response = await fetch(`/api/videos/${videoId}/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Confirmation': 'true'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        throw new Error(data.error || 'Failed to delete video');
+                    }
+
+                    // Remove the video card from the UI
+                    const videoCard = document.querySelector(`[data-id="${videoId}"]`);
+                    if (videoCard) {
+                        videoCard.remove();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to delete video: ' + error.message);
+                }
+            }
+
+            async function performSearch() {
+                const searchInput = document.getElementById('searchInput');
+                const query = searchInput.value.trim();
+                
+                try {
+                    const response = await fetch(`/api/search/videos?q=${encodeURIComponent(query)}`);
+                    if (!response.ok) {
+                        throw new Error('Search failed');
+                    }
+                    
+                    const results = await response.json();
+                    displayVideos(results);
+                } catch (error) {
+                    console.error('Search error:', error);
+                }
+            }
+
+            function displayVideos(videos) {
+                const container = document.querySelector('.video-grid');
+                container.innerHTML = ''; // Clear existing videos
+                
+                if (videos.length === 0) {
+                    container.innerHTML = '<p class="no-results">No videos found</p>';
+                    return;
+                }
+                
+                videos.forEach(video => {
+                    const card = createVideoCard(video);
+                    container.appendChild(card);
+                });
+            }
+
+            // Search on enter key press
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            // Search when search button is clicked
+            document.querySelector('.search-button').addEventListener('click', performSearch);
+
+            // Initial load
+            loadVideos();
+
+            // Add ripple effect to search button
+            document.querySelector('.search-button').addEventListener('click', function(e) {
+                let ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                
+                let x = e.clientX - e.target.offsetLeft;
+                let y = e.clientY - e.target.offsetTop;
+                
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+
+            // Add floating label effect
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function() {
+                if (this.value.length > 0) {
+                    this.classList.add('has-content');
+                } else {
+                    this.classList.remove('has-content');
+                }
+            });
+
+            let searchTimeout;
+            const searchResults = document.querySelector('.search-results');
+            const mainContent = document.querySelector('.main-content');
+            const searchResultsGrid = document.getElementById('searchResults');
+            const recommendationsGrid = document.getElementById('searchRecommendations');
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
+                
+                if (query) {
+                    searchTimeout = setTimeout(() => performSearch(query), 300);
+                } else {
+                    searchResults.style.display = 'none';
+                    mainContent.style.display = 'block';
+                }
+            });
+
+            async function performSearch(query) {
+                try {
+                    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    if (data.results.length > 0 || data.recommendations.length > 0) {
+                        displaySearchResults(data.results, data.recommendations);
+                        searchResults.style.display = 'block';
+                        mainContent.style.display = 'none';
+                    } else {
+                        searchResults.style.display = 'none';
+                        mainContent.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                }
+            }
+
+            function displaySearchResults(results, recommendations) {
+                // Display search results
+                searchResultsGrid.innerHTML = results.map(video => createVideoCard(video)).join('');
+                
+                // Display recommendations if available
+                if (recommendations && recommendations.length > 0) {
+                    recommendationsGrid.innerHTML = recommendations.map(video => createVideoCard(video)).join('');
+                    document.querySelector('.recommendations-section').style.display = 'block';
+                } else {
+                    document.querySelector('.recommendations-section').style.display = 'none';
+                }
+            }
+
+            function createVideoCard(video) {
+                return `
+                    <div class="video-card" data-video-id="${video.id}" onclick="playVideo('${video.id}', '${video.code?.replace(/'/g, "\\'")}')">
+                        <div class="video-thumbnail">
+                            <img src="${getThumbnailUrl(video)}" alt="${video.title}">
+                            <div class="video-preview"></div>
+                            <div class="preview-overlay">
+                                <div class="preview-timer">10s</div>
+                            </div>
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <div class="video-info">
+                            <h3 class="video-title">${video.title}</h3>
+                            <div class="video-meta">
+                                <span>${formatViews(video.views || 0)}</span>
+                            </div>
+                        </div>
+                        <div class="video-actions">
+                            <button onclick="event.stopPropagation(); deleteVideo('${video.id}')" class="delete-btn">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function formatViews(views) {
+                if (views >= 1000000) {
+                    return (views / 1000000).toFixed(1) + 'M views';
+                } else if (views >= 1000) {
+                    return (views / 1000).toFixed(1) + 'K views';
+                }
+                return views + ' views';
+            }
+
+            function playVideo(videoId, embedCode) {
+                const modal = document.getElementById('videoModal');
+                const player = document.getElementById('modalVideoPlayer');
+                
+                // Process embed code if needed
+                let processedCode = embedCode;
+                if (embedCode.includes('drive.google.com')) {
+                    const fileIdMatch = embedCode.match(/(?:file\/d\/|id=)([^/&\s]+)/);
+                    if (fileIdMatch) {
+                        const fileId = fileIdMatch[1];
+                        processedCode = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" width="100%" height="100%" allow="autoplay" frameborder="0" allowfullscreen></iframe>`;
+                    }
+                } else if (embedCode.includes('youtube.com') || embedCode.includes('youtu.be')) {
+                    const videoIdMatch = embedCode.match(/(?:youtube\.com\/embed\/|youtu\.be\/|youtube\.com\/watch\?v=)([^"&?\/ ]{11})/);
+                    if (videoIdMatch) {
+                        const youtubeId = videoIdMatch[1];
+                        processedCode = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                    }
+                }
+
+                player.innerHTML = processedCode;
+                modal.style.display = 'block';
+
+                // Update view count
+                fetch(`/api/videos/${videoId}/view`, {
+                    method: 'POST'
+                }).catch(error => console.error('Error updating view count:', error));
+            }
+
+            function closeVideoModal() {
+                const modal = document.getElementById('videoModal');
+                const player = document.getElementById('modalVideoPlayer');
+                player.innerHTML = ''; // Stop video playback
+                modal.style.display = 'none';
+            }
+
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const modal = document.getElementById('videoModal');
+                if (event.target == modal) {
+                    closeVideoModal();
+                }
+            }
+        </script>
+    </body>
+</html>

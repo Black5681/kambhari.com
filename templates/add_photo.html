@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Photo - Kambhari</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <style>
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions ol li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">Kambhari</a>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Videos</a>
+                <a href="{{ url_for('photos_page') }}" class="nav-link">Photos</a>
+                <a href="{{ url_for('add_video') }}" class="nav-link">Add Video</a>
+                <a href="{{ url_for('add_photo') }}" class="nav-link active">Add Photo</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="upload-form">
+            <h1 class="text-center mb-2">Add Photo to Kambhari</h1>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="views">Views:</label>
+                    <input type="number" id="views" name="views" required min="0">
+                </div>
+
+                <div class="code-section">
+                    <h2>Embedded Code</h2>
+                    <div class="instructions">
+                        <p>You can add photos from:</p>
+                        <ul>
+                            <li>Google Drive:
+                                <ol>
+                                    <li>Open your photo in Google Drive</li>
+                                    <li>Click "Share" and make sure the file is accessible (Anyone with the link)</li>
+                                    <li>Copy the file link (e.g., https://drive.google.com/file/d/YOUR_FILE_ID/view)</li>
+                                    <li>Paste it below - it will be automatically converted to an embed</li>
+                                </ol>
+                            </li>
+                            <li>Other sources: Use direct image embed code or iframe</li>
+                        </ul>
+                    </div>
+                    <textarea id="codeContent" class="code-editor" 
+                            placeholder="Paste your embedded code or Google Drive link here..." required></textarea>
+                    
+                    <div class="code-options">
+                        <button type="button" class="code-button" onclick="previewCode()">Preview</button>
+                    </div>
+
+                    <div id="codePreview" class="preview-code"></div>
+                </div>
+
+                <button type="submit" class="btn btn-block" onclick="submitPhoto()">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function previewCode() {
+            const codeContent = document.getElementById('codeContent').value;
+            const previewDiv = document.getElementById('codePreview');
+            
+            if (!codeContent) {
+                previewDiv.innerHTML = '<p>No content to preview</p>';
+                previewDiv.style.display = 'block';
+                return;
+            }
+
+            // Check if it's a Google Drive link
+            const drivePatterns = [
+                /drive\.google\.com\/file\/d\/([^\/]+)\/view/,
+                /drive\.google\.com\/file\/d\/([^\/]+)/,
+                /drive\.google\.com\/open\?id=([^\/&]+)/,
+                /docs\.google\.com\/uc\?id=([^\/&]+)/
+            ];
+
+            for (const pattern of drivePatterns) {
+                const match = codeContent.match(pattern);
+                if (match) {
+                    const fileId = match[1];
+                    previewDiv.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" width="853" height="480" frameborder="0" allowfullscreen></iframe>`;
+                    previewDiv.style.display = 'block';
+                    return;
+                }
+            }
+
+            // For other content, display as is
+            previewDiv.innerHTML = codeContent;
+            previewDiv.style.display = 'block';
+        }
+
+        async function submitPhoto() {
+            const title = document.getElementById('title').value;
+            const codeContent = document.getElementById('codeContent').value;
+            
+            if (!title || !codeContent) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/photos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        embedUrl: codeContent
+                    })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to add photo');
+                }
+
+                window.location.href = '{{ url_for('photos_page') }}';
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'Failed to add photo');
+            }
+        }
+    </script>
+</body>
+</html>
