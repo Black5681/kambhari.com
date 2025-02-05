@@ -1,55 +1,58 @@
-# Kambhari Gallery
+# Kambhari Photo and Video Gallery
 
-A beautiful gallery website for managing and displaying videos and photos.
+Welcome to Kambhari - A beautiful gallery website for showcasing photos and videos.
 
 ## Features
 
-- Video gallery with YouTube and Google Drive support
-- Photo gallery
-- Password-protected upload and delete functions
-- Responsive design
-- Beautiful modern UI
+- 📸 Photo Gallery
+- 🎥 Video Gallery
+- 🎨 Beautiful Modern UI
+- 📱 Mobile Responsive
+- 🔍 Search Functionality
+- ➕ Easy Upload System
 
-## Setup Instructions
+## Live Demo
 
-1. Prerequisites:
-   - Install [Node.js](https://nodejs.org/) (version 14 or higher)
-   - Install [Git](https://git-scm.com/) (optional, for version control)
+Visit the live website: [Kambhari Gallery](https://black5681.github.io/kambhari.com)
 
-2. Installation:
-   ```bash
-   # Clone or copy the project files to your computer
-   
-   # Navigate to the project directory
-   cd kambhari-gallery
-   
-   # Install dependencies
-   npm install
-   ```
+## Local Development
 
-3. Running the Website:
-   ```bash
-   # Start the server
-   npm start
-   ```
+To run this project locally:
 
-4. Access the Website:
-   - Open your web browser
-   - Go to `http://localhost:3000`
+1. Clone the repository
+```bash
+git clone https://github.com/Black5681/kambhari.com.git
+cd kambhari.com
+```
 
-## Important Passwords
-- Add Video Password: 5681
-- Delete Video Password: 9323
+2. Install dependencies
+```bash
+npm install
+```
 
-## Project Structure
-- `server.js` - Main server file
-- `index.html` - Home page
-- `add_video.html` - Video upload page
-- `data/` - Directory containing JSON files for data storage
-  - `videos.json` - Video data
-  - `photos.json` - Photo data
+3. Start the server
+```bash
+node server.js
+```
 
-## Notes
-- Make sure port 3000 is available
-- The data directory will be created automatically
-- Videos and photos are stored as links (not uploaded files)
+4. Open http://localhost:3000 in your browser
+
+## Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript
+- Node.js
+- Express.js
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+For any queries or suggestions, please reach out to webhosting5681@gmail.com
