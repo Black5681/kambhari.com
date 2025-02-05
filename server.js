@@ -46,7 +46,13 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve uploads and images directories
+// Serve favicon.ico
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'images', 'favicon.ico'));
+});
+
+// Serve static directories
+app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
