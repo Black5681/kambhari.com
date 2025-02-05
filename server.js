@@ -565,12 +565,14 @@ app.get('/video_player.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'video_player.html'));
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
+// Server configuration
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
     console.log('='.repeat(50));
     console.log(`Server started at ${new Date().toISOString()}`);
-    console.log(`Server is running on port ${port}`);
-    console.log(`http://localhost:${port}`);
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`http://localhost:${PORT}`);
     console.log('='.repeat(50));
 }).on('error', (error) => {
     console.error('Failed to start server:', error);

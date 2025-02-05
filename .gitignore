@@ -1,20 +1,7 @@
-# Node modules
 node_modules/
-
-# Data files
-data/*.json
-
-# Environment variables
 .env
-
-# System files
 .DS_Store
-Thumbs.db
-
-# IDE files
-.vscode/
-.idea/
-
-# Logs
+uploads/*
+!uploads/.gitkeep
+npm-debug.log
 *.log
-npm-debug.log*
