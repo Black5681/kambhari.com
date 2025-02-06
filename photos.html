@@ -111,43 +111,64 @@
 
         .photo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
             padding: 2rem;
-            max-width: 1800px;
-            margin: 0 auto;
-        }
-
-        .photo-thumbnail {
-            position: relative;
-            width: 100%;
-            height: 250px;
-            background: var(--card-bg);
-            border-radius: 8px 8px 0 0;
-            overflow: hidden;
-        }
-
-        .photo-thumbnail iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            transition: transform 0.3s ease;
-            object-fit: cover;
         }
 
         .photo-card {
             background: var(--card-bg);
             border-radius: 12px;
             overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            height: 350px;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%; /* 4:3 Aspect Ratio */
+            overflow: hidden;
+            background: #1a1a1a;
+        }
+
+        .thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-info {
+            padding: 1rem;
+        }
+
+        .photo-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .photo-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .no-results, .error {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-color);
+            grid-column: 1 / -1;
         }
 
         .photo-card:hover {
@@ -155,68 +176,33 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
-        .photo-card:hover iframe {
+        .photo-card:hover .thumbnail {
             transform: scale(1.05);
         }
 
-        .photo-info {
-            padding: 1rem;
-            background: var(--card-bg);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .photo-title {
-            font-size: 1.1rem;
-            color: var(--text-color);
-            margin: 0;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            line-height: 1.4;
-        }
-
-        .photo-meta {
-            margin-top: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .photo-views {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .photo-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #ff4444;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            opacity: 0.7;
+        .zoom-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .delete-btn:hover {
-            background-color: rgba(255, 68, 68, 0.1);
+        .photo-card:hover .zoom-overlay {
             opacity: 1;
         }
 
-        .photo-card:hover .delete-btn {
-            opacity: 1;
+        .zoom-overlay i {
+            color: white;
+            font-size: 24px;
         }
 
         .loading {
@@ -323,25 +309,105 @@
             cursor: not-allowed;
         }
 
-        .no-results {
-            text-align: center;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: 12px;
-            margin: 2rem auto;
-            max-width: 500px;
-            animation: fadeIn 0.5s ease;
+        .user-profile {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #6c5ce7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-icon i {
+            color: white;
+            font-size: 20px;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: var(--bg-color);
+            border-radius: 12px;
+            padding: 10px 0;
+            min-width: 200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .profile-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background: var(--bg-color);
+            transform: rotate(45deg);
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(108, 92, 231, 0.1);
+        }
+
+        .dropdown-item i {
+            margin-right: 10px;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+
+        @keyframes ripple {
+            to { transform: scale(2); opacity: 0; }
+        }
+
+        .profile-icon .ripple {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
         }
 
         /* Base responsive styles */
@@ -454,7 +520,7 @@
             .photo-card {
                 height: 320px;
             }
-            .photo-thumbnail {
+            .thumbnail-container {
                 height: 220px;
             }
         }
@@ -468,7 +534,7 @@
             .photo-card {
                 height: 300px;
             }
-            .photo-thumbnail {
+            .thumbnail-container {
                 height: 200px;
             }
         }
@@ -482,172 +548,9 @@
             .photo-card {
                 height: 280px;
             }
-            .photo-thumbnail {
+            .thumbnail-container {
                 height: 180px;
             }
-        }
-
-        /* User Profile Styles */
-        .user-profile {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .profile-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #6c5ce7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .profile-icon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .profile-icon i {
-            color: white;
-            font-size: 20px;
-        }
-
-        .profile-dropdown {
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background: var(--bg-color);
-            border-radius: 12px;
-            padding: 10px 0;
-            min-width: 200px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-        }
-
-        .profile-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .profile-dropdown::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            right: 15px;
-            width: 10px;
-            height: 10px;
-            background: var(--bg-color);
-            transform: rotate(45deg);
-        }
-
-        .dropdown-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            color: var(--text-color);
-            text-decoration: none;
-            transition: background 0.2s ease;
-        }
-
-        .dropdown-item:hover {
-            background: rgba(108, 92, 231, 0.1);
-        }
-
-        .dropdown-item i {
-            margin-right: 10px;
-            font-size: 16px;
-            color: var(--primary-color);
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 8px 0;
-        }
-
-        @keyframes ripple {
-            to { transform: scale(2); opacity: 0; }
-        }
-
-        .profile-icon .ripple {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: scale(0);
-            animation: ripple 0.6s linear;
-        }
-
-        .photo-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            cursor: pointer;
-            position: relative;
-        }
-
-        .photo-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .photo-card .thumbnail-container {
-            position: relative;
-            width: 100%;
-            padding-top: 75%; /* 4:3 Aspect Ratio for photos */
-            overflow: hidden;
-        }
-
-        .photo-card .thumbnail {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .photo-card:hover .thumbnail {
-            transform: scale(1.05);
-        }
-
-        .zoom-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .photo-card:hover .zoom-overlay {
-            opacity: 1;
-        }
-
-        .zoom-overlay i {
-            color: white;
-            font-size: 24px;
         }
     </style>
 </head>
@@ -758,41 +661,21 @@
             }
 
             async function loadPhotos(searchQuery = '') {
-                const loading = document.getElementById('loading');
-                const photoGrid = document.getElementById('photoGrid');
-                const noPhotos = document.getElementById('noPhotos');
-
-                loading.style.display = 'block';
-                photoGrid.innerHTML = '';
-                noPhotos.style.display = 'none';
-
                 try {
                     const response = await fetch('/api/photos');
-                    if (!response.ok) throw new Error('Failed to fetch photos');
-                    
                     const photos = await response.json();
-                    console.log('Loaded photos:', photos);
-
-                    if (!photos || photos.length === 0) {
-                        loading.style.display = 'none';
-                        noPhotos.style.display = 'block';
-                        return;
-                    }
-
+                    
+                    const gallery = document.querySelector('.photo-grid');
+                    gallery.innerHTML = ''; // Clear existing photos
+                    
                     // Filter photos if search query exists
-                    const filteredPhotos = photos.filter(photo => 
-                        photo.title.toLowerCase().includes(searchQuery.toLowerCase())
-                    );
-
-                    if (filteredPhotos.length === 0) {
-                        loading.style.display = 'none';
-                        noPhotos.style.display = 'block';
-                        return;
-                    }
-
-                    // Sort photos by creation date (newest first)
-                    filteredPhotos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
+                    const filteredPhotos = searchQuery
+                        ? photos.filter(photo =>
+                            photo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            photo.description.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        : photos;
+                    
                     // Add photos with fade in animation
                     filteredPhotos.forEach((photo, index) => {
                         const card = document.createElement('div');
@@ -800,45 +683,35 @@
                         card.onclick = () => location.href = `/photo_viewer.html?id=${photo.id}`;
                         
                         const photoId = photo.mediaId || extractPhotoId(photo.embedUrl || photo.embedCode);
-                        if (!photoId) {
-                            console.warn('Invalid photo URL:', photo.embedUrl);
-                            return;
-                        }
-
-                        const previewUrl = photo.urls?.preview || 
-                            `https://drive.google.com/file/d/${photoId}/preview`;
-
+                        const thumbnailUrl = photo.thumbnail || `https://drive.google.com/thumbnail?id=${photoId}`;
+                        
                         card.innerHTML = `
                             <div class="thumbnail-container">
-                                <img class="thumbnail" src="${previewUrl}" alt="Photo Preview">
+                                <img src="${thumbnailUrl}" 
+                                     alt="${photo.title}" 
+                                     class="thumbnail"
+                                     onerror="this.src='/static/images/default-thumbnail.jpg'"
+                                     loading="lazy">
                                 <div class="zoom-overlay">
                                     <i class="fas fa-search-plus"></i>
                                 </div>
                             </div>
                             <div class="photo-info">
-                                <div>
-                                    <h3 class="photo-title">${photo.title}</h3>
-                                    <div class="photo-meta">
-                                        <span class="photo-views">${photo.views ? photo.views.toLocaleString() + ' views' : '0 views'}</span>
-                                        <div class="photo-actions">
-                                            <button class="delete-btn" onclick="event.stopPropagation(); showDeleteModal('${photo.id}')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                                <h3 class="photo-title">${photo.title}</h3>
+                                <p class="photo-description">${photo.description || ''}</p>
                             </div>
                         `;
-
-                        photoGrid.appendChild(card);
+                        
+                        gallery.appendChild(card);
                     });
-
-                    loading.style.display = 'none';
+                    
+                    if (filteredPhotos.length === 0) {
+                        gallery.innerHTML = '<p class="no-results">No photos found</p>';
+                    }
                 } catch (error) {
                     console.error('Error loading photos:', error);
-                    loading.style.display = 'none';
-                    noPhotos.style.display = 'block';
-                    noPhotos.textContent = 'Error loading photos. Please try again.';
+                    const gallery = document.querySelector('.photo-grid');
+                    gallery.innerHTML = '<p class="error">Error loading photos. Please try again later.</p>';
                 }
             }
 
